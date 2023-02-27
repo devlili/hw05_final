@@ -148,6 +148,7 @@ EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
 POSTS_PER_PAGE = 10
+CACHE_TIME_SEC = 20
 
 CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 

@@ -1,13 +1,14 @@
-from core.utils import paginate
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
+from core.utils import paginate
+from yatube.settings import CACHE_TIME_SEC
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post, User
 
 
-@cache_page(20, key_prefix="index_page")
+@cache_page(CACHE_TIME_SEC, key_prefix="index_page")
 def index(request):
     """Главная страница."""
 
@@ -24,7 +25,7 @@ def group_posts(request, slug):
     """Страница постов одной группы."""
 
     group = get_object_or_404(Group, slug=slug)
-    posts = group.posts.select_related("author")
+    posts = group.posts.all()
     page_obj = paginate(request, posts)
     context = {
         "title": f'Записи сообщества "{group}"',
@@ -38,7 +39,7 @@ def profile(request, username):
     """Страница профайла пользователя."""
 
     author = get_object_or_404(User, username=username)
-    post_list = author.posts.select_related("group")
+    post_list = author.posts.all()
     page_obj = paginate(request, post_list)
     user = request.user
     following = user.is_authenticated and author.following.exists()
@@ -54,7 +55,7 @@ def post_detail(request, post_id):
     """Страница поста."""
 
     post = get_object_or_404(Post, id=post_id)
-    comments = post.comments.select_related("author")
+    comments = post.comments.all()
     form = CommentForm(request.POST or None)
     context = {
         "title": f"Пост {post}",

@@ -3,6 +3,7 @@ import tempfile
 from http import HTTPStatus
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -40,6 +41,8 @@ class FormTest(TestCase):
         )
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
+
+        cache.clear()
 
     @classmethod
     def tearDownClass(cls):
@@ -80,8 +83,23 @@ class FormTest(TestCase):
 
         old_text = self.post
         posts_count = Post.objects.count()
+        small_gif = (
+            b"\x47\x49\x46\x38\x39\x61\x02\x00"
+            b"\x01\x00\x80\x00\x00\x00\x00\x00"
+            b"\xFF\xFF\xFF\x21\xF9\x04\x00\x00"
+            b"\x00\x00\x00\x2C\x00\x00\x00\x00"
+            b"\x02\x00\x01\x00\x00\x02\x02\x0C"
+            b"\x0A\x00\x3B"
+        )
+        uploaded = SimpleUploadedFile(
+            name="small2.gif", content=small_gif, content_type="image/gif"
+        )
         group2 = Group.objects.create(title="Тестовая группа2", slug="slug-2")
-        form_data = {"text": "Редактированный пост", "group": group2.id}
+        form_data = {
+            "text": "Редактированный пост",
+            "group": group2.id,
+            "image": uploaded,
+        }
         response = self.authorized_client.post(
             reverse(
                 "posts:post_edit",
@@ -92,7 +110,9 @@ class FormTest(TestCase):
         )
         self.assertTrue(
             Post.objects.filter(
-                text="Редактированный пост", group=group2.id
+                text="Редактированный пост",
+                group=group2.id,
+                image="posts/small2.gif",
             ).exists(),
             "Запись не редактируется",
         )

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 align="center">{{ title }}</h1><br/>
+  {% include 'includes/switcher.html' %}
+  {% for post in page_obj %}
+    {% include 'includes/post.html' %}
+  {% endfor %}
+{% endblock %}

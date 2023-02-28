@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from yatube.settings import POSTS_PER_PAGE
 
+from ..forms import PostForm
 from ..models import Comment, Follow, Group, Post, User
 
 GAP = 3
@@ -103,7 +104,7 @@ class ViewsTest(TestCase):
                 args=(self.post.pk,),
             )
         )
-        context = response.context["post"]
+        context = response.context.get("post")
         contexts = {
             context.text: self.post.text,
             context.author: self.post.author,
@@ -129,7 +130,9 @@ class ViewsTest(TestCase):
         ]
         for value, expected in form_fields:
             with self.subTest(value=value):
-                form_field = response.context.get("form").fields.get(value)
+                form = response.context.get("form")
+                self.assertIsInstance(form, PostForm)
+                form_field = form.fields.get(value)
                 self.assertIsInstance(
                     form_field,
                     expected,

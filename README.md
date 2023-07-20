@@ -20,7 +20,7 @@ Yatube - социальная сеть для публикации постов.
 
 ## Стек <a id=stack></a>
 
-Python3, Django 2.2, pytest, unitest, SQlite3, Pillow, sorl-thumbnail
+Python3, Django 2.2, unittest, SQlite3, Pillow, sorl-thumbnail
 
 ---
 ## Команды для запуска <a id=run></a>
